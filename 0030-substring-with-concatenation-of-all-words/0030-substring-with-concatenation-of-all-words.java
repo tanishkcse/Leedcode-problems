@@ -1,59 +1,34 @@
-class Solution 
-{
-    public List<Integer> findSubstring(String s, String[] words) 
-    {
-        if(words[0].length()*words.length>s.length())
-            return new ArrayList<>();
-        
-        Map<String,Integer> word_frq=new HashMap<>();
-        List<Integer> ans=new ArrayList<>();
-        
-        // Map store the frequency of every word in words[]
-        
-        for(String str:words)
-            word_frq.put(str,word_frq.getOrDefault(str,0)+1);
-        
-        int wordlen=words[0].length();  
-        
-        String[] str=new String[s.length()];
-        
-        for(int i=0;i<wordlen;i++)
-        {
-            Map<String,Integer> frq=new HashMap<>();  // count frequency of words inside the window
-            
-            int begin=i,size=0; // size is the no. of window and begin is the starting index of window
-            
-            // s.length()-wordlen -> based on observation
-            
-            for(int j=i;j<=s.length()-wordlen;j+=wordlen)
-            {
-                str[j]=s.substring(j,j+wordlen);  // window
-                if(word_frq.containsKey(str[j]))
-                {
-                    begin= begin==-1? j:begin; // begin=-1 means new window need to be started
-                    frq.put(str[j],frq.getOrDefault(str[j],0)+1); 
-                    size++; 
-                    
-                    if(size==words.length)  // substring may be possible
-                    {
-                        if(frq.equals(word_frq))
-                            ans.add(begin);
-                        
-                        // sliding the window 
-                        
-                        frq.put(str[begin],frq.get(str[begin])-1); 
-                        begin+=wordlen;  // new starting index
-                        size--;
+import java.util.*;
+
+class Solution {
+    public List<Integer> findSubstring(String s, String[] words) {
+        List<Integer> list = new ArrayList<>();
+        Map<String, Integer> countWord = new HashMap<>();
+        for (String word : words) {
+            countWord.put(word, countWord.getOrDefault(word, 0) + 1);
+        }
+
+        int wordSize = words[0].length();
+        int WindowSize = words.length * wordSize;
+        for (int i = 0; i <= s.length() - WindowSize; i++) {
+
+            Map<String, Integer> seen = new HashMap<>(countWord);
+            int left = i;
+            int match = 0;
+            for (int startIdx = i; startIdx <= i + WindowSize - wordSize; startIdx += wordSize) {
+                String CurrWord = s.substring(startIdx, startIdx + wordSize);
+                if (seen.containsKey(CurrWord)) {
+                    seen.put(CurrWord, seen.get(CurrWord) - 1);
+                    if (seen.get(CurrWord) == 0) {
+                        match++;
                     }
-                }
-                else  // reset window
-                {
-                    begin=-1;
-                    size=0;
-                    frq.clear();
+                    if (match == seen.size()) {
+                        list.add(left);
+                        break;
+                    }
                 }
             }
         }
-        return ans;
+        return list;
     }
 }
